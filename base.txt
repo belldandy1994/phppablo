@@ -1,0 +1,105 @@
+<?php
+$serverName="DESKTOP-TUMKGMO";
+$connectionInfo= array("UID" =>"pablo" , "PWD" => "pablo");
+$conn= sqlsrv_connect($serverName, $connectionInfo);
+if($conn === false){
+	die(print_r(sqlsrv_errors(), true));
+}
+
+$base="create database diana";
+$stmt = sqlsrv_query($conn, $base);
+
+if($stmt === false){
+	die(print_r(sqlsrv_errors(), true));
+}
+
+
+$sql="use  diana;
+
+create table tbl_proveedores(
+	cn_proveedor_id int identity (1,1),
+	cn_nombre nvarchar(30),
+	cn_direccion nvarchar(30),
+	cn_telefono nvarchar(15),
+	cn_correo nvarchar(30),
+	cn_foto image,
+	constraint Pk_cn_proveedorid primary key(cn_proveedor_id));
+
+create table tbl_carro(
+	cn_carro_id int identity (1,1),
+	cn_marca nvarchar(30),
+	cn_modelo nvarchar(30),
+	cn_anio date,
+	constraint Pk_cn_carroid primary key(cn_carro_id));
+
+create table tbl_refacciones(
+	cn_refaccion_id int identity (1,1),
+	cn_nombre nvarchar(30),
+	cn_descripcion nvarchar(30),
+	cn_precio int,
+	cn_carro_id int,
+	cn_proveedorid int,
+	cn_foto image,
+	constraint Pk_cn_refaccionid primary key(cn_refaccion_id),
+	constraint fk_cn_carro foreign key(cn_carro_id) references tbl_carro(cn_carro_id),
+	constraint fk_cn_proveedor foreign key(cn_proveedorid) references tbl_proveedores(cn_proveedor_id));
+
+create table tbl_tipocliente(
+	cn_tipocliente_id int identity (1,1),
+	cn_nombre nvarchar(30),
+	cn_porcentaje_pago nvarchar(30),
+	constraint Pk_cn_tipoclienteid primary key(cn_tipocliente_id));
+
+create table tbl_clientes(
+	cn_cliente_id int identity (1,1),
+	cn_nombre_c nvarchar(30),
+	cn_ap_p_c nvarchar(30),
+	cn_ap_m_c nvarchar(30),
+	cn_direccion_c nvarchar(30),
+	cn_foto image,
+	cn_tel_c nvarchar(15),
+	cn_tel_ref nvarchar(15),
+	cn_correo nvarchar(30),
+	cn_tipocliente_id int,
+	constraint Pk_cn_clienteid primary key(cn_cliente_id),
+	constraint fk_cn_tipocliente foreign key(cn_tipocliente_id) references tbl_tipocliente(cn_tipocliente_id));
+
+create table tbl_empleados(
+	cn_empleado_id int identity (1,1),
+	cn_nombre_e nvarchar(30),
+	cn_ap_p_e nvarchar(30),
+	cn_ap_m_e nvarchar(30),
+	cn_direccion_e nvarchar(30),
+	cn_foto image,
+	cn_correo_e nvarchar(30),
+	constraint Pk_cn_empleadoid primary key(cn_empleado_id));
+
+create table tbl_ventas(
+	cn_venta_id int identity (1,1),
+	cn_empleado_id int,
+	cn_cliente_id int,
+	cn_fecha date,
+	cn_monto_total int,
+	cn_comision int,
+	constraint Pk_cn_ventaid primary key(cn_venta_id),
+	constraint fk_cn_empleado foreign key(cn_empleado_id) references tbl_empleados(cn_empleado_id),
+	constraint fk_cn_cliente foreign key(cn_cliente_id) references tbl_clientes(cn_cliente_id));
+
+create table tbl_detalleventa(
+	cn_detalleventa_id int identity (1,1),
+	cn_venta_id int,
+	cn_refaccion_id int,
+	cn_cantidad int,
+	constraint Pk_cn_detalleventaid primary key(cn_detalleventa_id),
+	constraint fk_cn_venta foreign key(cn_venta_id) references tbl_ventas(cn_venta_id),
+	constraint fk_cn_refaccion foreign key(cn_refaccion_id) references tbl_refacciones(cn_refaccion_id));";
+
+$stmt2 = sqlsrv_query($conn, $sql);
+
+if($stmt2 === false){
+	die(print_r(sqlsrv_errors(), true));
+}
+
+sqlsrv_free_stmt($stmt2);
+sqlsrv_close ($conn);
+?>
